@@ -10,6 +10,11 @@ export class SubscriptionsService {
     account: Subscription['account'],
     pushSubscriptionObject: Subscription['pushSubscriptionObject'],
   ): Promise<void> {
+    const subscriptionExists = await this.doesSubsciptionExist(account);
+    if (subscriptionExists) {
+      console.log(`Deleting old subscription for account ${account}.`);
+      await this.deleteSubscription(account);
+    }
     await this.prisma.subscription.create({
       data: {
         account,
@@ -22,13 +27,23 @@ export class SubscriptionsService {
   }
 
   async deleteSubscription(account: string): Promise<void> {
-    await this.prisma.subscription.updateMany({
-      data: {
-        active: false,
-      },
+    const subscriptionExists = await this.doesSubsciptionExist(account);
+    if (!subscriptionExists) {
+      throw new Error('SUBSCRIPTION_NOT_PRESENT');
+    }
+    await this.prisma.subscription.delete({
       where: {
         account,
       },
     });
+  }
+
+  private async doesSubsciptionExist(account: string): Promise<boolean> {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        account,
+      },
+    });
+    return subscription !== null;
   }
 }

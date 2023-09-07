@@ -10,16 +10,16 @@ export class SubscriptionsController {
     @Request() req,
     @Body()
     {
-      account,
+      accountId,
       pushSubscriptionObject,
-    }: { account: string; pushSubscriptionObject: string },
+    }: { accountId: string; pushSubscriptionObject: object },
   ): Promise<void> {
     try {
       await this.subscriptionsService.createSubscription(
-        account,
-        pushSubscriptionObject,
+        accountId,
+        JSON.stringify(pushSubscriptionObject),
       );
-      console.log(`Subscription for account ${account} has been saved.`);
+      console.log(`Subscription for account ${accountId} has been saved.`);
     } catch (e: any) {
       console.error('Subscription creation failed.', e);
       // TODO map error
