@@ -11,13 +11,13 @@ export class SubscriptionsController {
     @Body()
     {
       accountId,
-      pushSubscriptionObject,
-    }: { accountId: string; pushSubscriptionObject: object },
+      subscription,
+    }: { accountId: string; subscription: object },
   ): Promise<void> {
     try {
       await this.subscriptionsService.createSubscription(
         accountId,
-        JSON.stringify(pushSubscriptionObject),
+        JSON.stringify(subscription),
       );
       console.log(`Subscription for account ${accountId} has been saved.`);
     } catch (e: any) {
@@ -31,11 +31,11 @@ export class SubscriptionsController {
   @HttpCode(204)
   async delete(
     @Request() req,
-    @Body() { account }: { account: string },
+    @Body() { accountId }: { accountId: string },
   ): Promise<void> {
     try {
-      await this.subscriptionsService.deleteSubscription(account);
-      console.log(`Subscription for account ${account} has been deleted.`);
+      await this.subscriptionsService.deleteSubscription(accountId);
+      console.log(`Subscription for account ${accountId} has been deleted.`);
     } catch (e: any) {
       console.error('Subscription deletion failed.', e);
       // TODO map error
