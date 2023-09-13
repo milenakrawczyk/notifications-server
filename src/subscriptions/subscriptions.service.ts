@@ -9,16 +9,21 @@ export class SubscriptionsService {
   async createSubscription(
     account: Subscription['account'],
     pushSubscriptionObject: Subscription['pushSubscriptionObject'],
+    userAgent: Subscription['userAgent'],
   ): Promise<void> {
-    const subscriptionExists = await this.doesSubsciptionExist(account);
+    const subscriptionExists = await this.doesSubsciptionExist(
+      account,
+      userAgent,
+    );
     if (subscriptionExists) {
       console.log(`Deleting old subscription for account ${account}.`);
-      await this.deleteSubscription(account);
+      await this.deleteSubscription(account, userAgent);
     }
     await this.prisma.subscription.create({
       data: {
         account,
         pushSubscriptionObject,
+        userAgent,
       },
       select: {
         id: true,
@@ -26,22 +31,37 @@ export class SubscriptionsService {
     });
   }
 
-  async deleteSubscription(account: string): Promise<void> {
-    const subscriptionExists = await this.doesSubsciptionExist(account);
+  async deleteSubscription(
+    account: Subscription['account'],
+    userAgent: Subscription['userAgent'],
+  ): Promise<void> {
+    const subscriptionExists = await this.doesSubsciptionExist(
+      account,
+      userAgent,
+    );
     if (!subscriptionExists) {
       throw new Error('SUBSCRIPTION_NOT_PRESENT');
     }
     await this.prisma.subscription.delete({
       where: {
-        account,
+        subscriptionIdentifier: {
+          account,
+          userAgent,
+        },
       },
     });
   }
 
-  private async doesSubsciptionExist(account: string): Promise<boolean> {
+  private async doesSubsciptionExist(
+    account: Subscription['account'],
+    userAgent: Subscription['userAgent'],
+  ): Promise<boolean> {
     const subscription = await this.prisma.subscription.findUnique({
       where: {
-        account,
+        subscriptionIdentifier: {
+          account,
+          userAgent,
+        },
       },
     });
     return subscription !== null;

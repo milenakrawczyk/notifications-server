@@ -9,15 +9,13 @@ export class SubscriptionsController {
   async create(
     @Request() req,
     @Body()
-    {
-      accountId,
-      subscription,
-    }: { accountId: string; subscription: object },
+    { accountId, subscription }: { accountId: string; subscription: object },
   ): Promise<void> {
     try {
       await this.subscriptionsService.createSubscription(
         accountId,
         JSON.stringify(subscription),
+        req.headers['user-agent'],
       );
       console.log(`Subscription for account ${accountId} has been saved.`);
     } catch (e: any) {
@@ -34,7 +32,10 @@ export class SubscriptionsController {
     @Body() { accountId }: { accountId: string },
   ): Promise<void> {
     try {
-      await this.subscriptionsService.deleteSubscription(accountId);
+      await this.subscriptionsService.deleteSubscription(
+        accountId,
+        req.headers['user-agent'],
+      );
       console.log(`Subscription for account ${accountId} has been deleted.`);
     } catch (e: any) {
       console.error('Subscription deletion failed.', e);
