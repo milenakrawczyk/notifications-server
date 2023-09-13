@@ -2,7 +2,7 @@
 CREATE TABLE "Subscription" (
     "id" SERIAL NOT NULL,
     "account" TEXT NOT NULL,
-    "user_agent" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
     "push_subscription_object" JSONB NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -25,7 +25,10 @@ CREATE TABLE "Notification" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subscription_account_user_agent_key" ON "Subscription"("account", "user_agent");
+CREATE UNIQUE INDEX "Subscription_endpoint_key" ON "Subscription"("endpoint");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Subscription_push_subscription_object_key" ON "Subscription"("push_subscription_object");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Notification_id_key" ON "Notification"("id");

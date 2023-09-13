@@ -15,10 +15,9 @@ generator client {
 model Subscription {
   id                         Int       @id @default(autoincrement())
   account                    String
-  userAgent                  String    @map("user_agent")
-  pushSubscriptionObject     Json      @map("push_subscription_object")
+  endpoint                   String    @unique
+  pushSubscriptionObject     Json      @unique @map("push_subscription_object")
   createdAt                  DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  @@unique([account, userAgent], name: "subscriptionIdentifier")
 }
 
 model Notification {

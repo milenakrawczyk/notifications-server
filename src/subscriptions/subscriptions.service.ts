@@ -9,21 +9,20 @@ export class SubscriptionsService {
   async createSubscription(
     account: Subscription['account'],
     pushSubscriptionObject: Subscription['pushSubscriptionObject'],
-    userAgent: Subscription['userAgent'],
+    endpoint: Subscription['endpoint'],
   ): Promise<void> {
     const subscriptionExists = await this.doesSubsciptionExist(
-      account,
-      userAgent,
+      endpoint
     );
     if (subscriptionExists) {
       console.log(`Deleting old subscription for account ${account}.`);
-      await this.deleteSubscription(account, userAgent);
+      await this.deleteSubscription(endpoint);
     }
     await this.prisma.subscription.create({
       data: {
         account,
         pushSubscriptionObject,
-        userAgent,
+        endpoint
       },
       select: {
         id: true,
@@ -32,38 +31,44 @@ export class SubscriptionsService {
   }
 
   async deleteSubscription(
-    account: Subscription['account'],
-    userAgent: Subscription['userAgent'],
+    endpoint: Subscription['endpoint']
   ): Promise<void> {
-    const subscriptionExists = await this.doesSubsciptionExist(
-      account,
-      userAgent,
+    const subscription = await this.getSubscription(
+      endpoint
     );
-    if (!subscriptionExists) {
+    if (!subscription) {
       throw new Error('SUBSCRIPTION_NOT_PRESENT');
     }
+    console.log(`Subscription for account ${subscription.account} has been deleted.`);
+
     await this.prisma.subscription.delete({
       where: {
-        subscriptionIdentifier: {
-          account,
-          userAgent,
-        },
+        endpoint
       },
     });
   }
 
   private async doesSubsciptionExist(
-    account: Subscription['account'],
-    userAgent: Subscription['userAgent'],
+    endpoint: Subscription['endpoint'],
   ): Promise<boolean> {
     const subscription = await this.prisma.subscription.findUnique({
       where: {
-        subscriptionIdentifier: {
-          account,
-          userAgent,
-        },
+        endpoint
       },
     });
     return subscription !== null;
   }
+
+  private async getSubscription(
+    endpoint: Subscription['endpoint'],
+  ): Promise<Subscription> {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        endpoint
+      },
+    });
+    return subscription;
+  }
 }
+
+
