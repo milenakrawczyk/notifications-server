@@ -1,4 +1,4 @@
-FROM node:16 as builder
+FROM node:18 as builder
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -20,20 +20,23 @@ RUN npm run prisma:generate
 RUN npm run prebuild
 RUN npm run build
 
-FROM --platform=linux/amd64 node:16-alpine as runner
+FROM --platform=linux/amd64 node:18-alpine as runner
 
-EXPOSE 8080
-USER node
+EXPOSE 3001
 
 # Create app directory
 WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/generated ./generated
+COPY --from=builder /usr/src/app/prisma ./prisma
+
+RUN npm install -g prisma
+RUN npm run prisma:generate
 
 # Install optimized dependencies, running after having all files
 RUN npm ci
+USER node
 
 ENV NODE_ENV=production
 
