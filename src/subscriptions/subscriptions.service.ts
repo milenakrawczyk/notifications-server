@@ -1,6 +1,7 @@
 import { Subscription } from '../../generated/prisma';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { VError } from 'verror';
 
 @Injectable()
 export class SubscriptionsService {
@@ -11,64 +12,86 @@ export class SubscriptionsService {
     pushSubscriptionObject: Subscription['pushSubscriptionObject'],
     endpoint: Subscription['endpoint'],
   ): Promise<void> {
-    const subscriptionExists = await this.doesSubsciptionExist(
-      endpoint
-    );
+    const subscriptionExists = await this.doesSubsciptionExist(endpoint);
     if (subscriptionExists) {
-      console.log(`Deleting old subscription for account ${account}.`);
-      await this.deleteSubscription(endpoint);
+      throw new VError(
+        {
+          info: {
+            code: 'ALREADY_EXISTS',
+            response: 'SUBSCRIPTION_ALREADY_EXISTS',
+          },
+        },
+        'Subscription already exists',
+      );
     }
-    await this.prisma.subscription.create({
-      data: {
-        account,
-        pushSubscriptionObject,
-        endpoint
-      },
-      select: {
-        id: true,
-      },
-    });
+    try {
+      await this.prisma.subscription.create({
+        data: {
+          account,
+          pushSubscriptionObject,
+          endpoint,
+        },
+        select: {
+          id: true,
+        },
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Failed while creating subscription.');
+    }
   }
 
-  async deleteSubscription(
-    endpoint: Subscription['endpoint']
-  ): Promise<void> {
-    const subscription = await this.getSubscription(
-      endpoint
-    );
+  async deleteSubscription(endpoint: Subscription['endpoint']): Promise<void> {
+    const subscription = await this.getSubscription(endpoint);
     if (!subscription) {
-      throw new Error('SUBSCRIPTION_NOT_PRESENT');
+      throw new VError(
+        {
+          info: {
+            code: 'NOT_FOUND',
+            response: 'SUBSCRIPTION_NOT_FOUND',
+          },
+        },
+        'Subscription not found',
+      );
     }
-    console.log(`Subscription for account ${subscription.account} has been deleted.`);
 
-    await this.prisma.subscription.delete({
-      where: {
-        endpoint
-      },
-    });
+    console.log(
+      `Subscription for account ${subscription.account} has been deleted.`,
+    );
+
+    try {
+      await this.prisma.subscription.delete({
+        where: {
+          endpoint,
+        },
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Failed while deleting subscription.');
+    }
   }
 
   private async doesSubsciptionExist(
     endpoint: Subscription['endpoint'],
   ): Promise<boolean> {
-    const subscription = await this.prisma.subscription.findUnique({
-      where: {
-        endpoint
-      },
-    });
-    return subscription !== null;
+    try {
+      const subscription = await this.getSubscription(endpoint);
+      return subscription !== null;
+    } catch (e: any) {
+      throw new VError(e, 'Failed while executing subscription exists query.');
+    }
   }
 
   private async getSubscription(
     endpoint: Subscription['endpoint'],
   ): Promise<Subscription> {
-    const subscription = await this.prisma.subscription.findUnique({
-      where: {
-        endpoint
-      },
-    });
-    return subscription;
+    try {
+      const subscription = await this.prisma.subscription.findUnique({
+        where: {
+          endpoint,
+        },
+      });
+      return subscription;
+    } catch (e: any) {
+      throw new VError(e, 'Failed while executing get subscription query.');
+    }
   }
 }
-
-
