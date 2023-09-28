@@ -4,78 +4,57 @@ import {
   Post,
   HttpCode,
   BadRequestException,
+  UsePipes,
 } from '@nestjs/common';
 import { VError } from 'verror';
+import { JoiValidationPipe } from '../pipes/JoiValidationPipe';
+import {
+  CreateSubscriptionDto,
+  CreateSubscriptionSchema,
+  DeleteSubscriptionDto,
+  DeleteSubscriptionSchema,
+} from './dto';
 import { SubscriptionsService } from './subscriptions.service';
-
-interface PushSubscriptionObject {
-  endpoint: string;
-  expirationTime?: Number;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-}
 
 @Controller('subscriptions')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
   @Post('create')
+  @UsePipes(new JoiValidationPipe(CreateSubscriptionSchema))
   async create(
     @Body()
-    {
-      accountId,
-      subscription,
-    }: {
-      accountId: string;
-      subscription: PushSubscriptionObject;
-    },
+    { accountId, subscription }: CreateSubscriptionDto,
   ): Promise<void> {
     try {
-      if (!accountId || !subscription) {
-        //TODO validating request pipe
-        throw new VError(
-          {
-            info: {
-              code: 'BAD_REQUEST',
-              response: 'BAD_CREATE_SUBSCRIPTION_REQUEST',
-            },
-          },
-          'Bad create subscription request',
-        );
-      }
       await this.subscriptionsService.createSubscription(
         accountId,
         JSON.stringify(subscription),
         subscription.endpoint,
       );
-      console.log(`Subscription for account ${accountId} has been saved.`);
+      console.log(
+        `Subscription for account: ${accountId}, endpoint: ${subscription.endpoint} has been saved.`,
+      );
     } catch (e: any) {
-      console.error('Subscription creation failed.', e);
+      console.error(
+        `Subscription creation for account: ${accountId}, endpoint: ${subscription.endpoint} failed.`,
+        e,
+      );
       throw mapError(e);
     }
   }
 
   @Post('delete')
   @HttpCode(204)
-  async delete(@Body() { endpoint }: { endpoint: string }): Promise<void> {
+  @UsePipes(new JoiValidationPipe(DeleteSubscriptionSchema))
+  async delete(@Body() { endpoint }: DeleteSubscriptionDto): Promise<void> {
     try {
-      if (!endpoint) {
-        //TODO validating request pipe
-        throw new VError(
-          {
-            info: {
-              code: 'BAD_REQUEST',
-              response: 'BAD_DELETE_SUBSCRIPTION_REQUEST',
-            },
-          },
-          'Bad delete subscription request',
-        );
-      }
       await this.subscriptionsService.deleteSubscription(endpoint);
     } catch (e: any) {
-      console.error('Subscription deletion failed.', e);
+      console.error(
+        `Subscription deletion for endpoint: ${endpoint} failed.`,
+        e,
+      );
       throw mapError(e);
     }
   }
