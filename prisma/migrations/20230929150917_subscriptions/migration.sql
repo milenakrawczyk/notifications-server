@@ -3,6 +3,7 @@ CREATE TABLE "Subscription" (
     "id" SERIAL NOT NULL,
     "account" TEXT NOT NULL,
     "endpoint" TEXT NOT NULL,
+    "gateway" TEXT NOT NULL,
     "push_subscription_object" JSONB NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -19,9 +20,11 @@ CREATE TABLE "Notification" (
     "path" TEXT,
     "receiver" TEXT NOT NULL,
     "value_type" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "gateway" TEXT NOT NULL,
     "sent_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id","endpoint")
 );
 
 -- CreateIndex
@@ -29,6 +32,3 @@ CREATE UNIQUE INDEX "Subscription_endpoint_key" ON "Subscription"("endpoint");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscription_push_subscription_object_key" ON "Subscription"("push_subscription_object");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Notification_id_key" ON "Notification"("id");

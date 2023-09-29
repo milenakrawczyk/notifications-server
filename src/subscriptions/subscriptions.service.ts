@@ -11,6 +11,7 @@ export class SubscriptionsService {
     account: Subscription['account'],
     pushSubscriptionObject: Subscription['pushSubscriptionObject'],
     endpoint: Subscription['endpoint'],
+    gateway: Subscription['gateway'],
   ): Promise<void> {
     const subscriptionExists = await this.doesSubsciptionExist(endpoint);
     if (subscriptionExists) {
@@ -21,7 +22,7 @@ export class SubscriptionsService {
             response: 'SUBSCRIPTION_ALREADY_EXISTS',
           },
         },
-        'Subscription already exists',
+        `Subscription already exists for account: ${account}, endpoint: ${endpoint}, gateway: ${gateway}.`,
       );
     }
     try {
@@ -30,13 +31,14 @@ export class SubscriptionsService {
           account,
           pushSubscriptionObject,
           endpoint,
+          gateway
         },
         select: {
           id: true,
         },
       });
     } catch (e: any) {
-      throw new VError(e, 'Failed while creating subscription.');
+      throw new VError(e, `Failed while creating subscription for account: ${account}`);
     }
   }
 
@@ -50,12 +52,12 @@ export class SubscriptionsService {
             response: 'SUBSCRIPTION_NOT_FOUND',
           },
         },
-        'Subscription not found',
+        `Subscription not found for endpoint: ${endpoint}.`,
       );
     }
 
     console.log(
-      `Subscription for account ${subscription.account} has been deleted.`,
+      `Subscription for account ${subscription.account}, endpoint: ${endpoint} has been deleted.`,
     );
 
     try {
@@ -65,7 +67,7 @@ export class SubscriptionsService {
         },
       });
     } catch (e: any) {
-      throw new VError(e, 'Failed while deleting subscription.');
+      throw new VError(e, `Failed while deleting subscription ${subscription.account}.`);
     }
   }
 
