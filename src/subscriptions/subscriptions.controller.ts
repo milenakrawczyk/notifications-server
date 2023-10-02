@@ -24,13 +24,14 @@ export class SubscriptionsController {
   @UsePipes(new JoiValidationPipe(CreateSubscriptionSchema))
   async create(
     @Body()
-    { accountId, subscription }: CreateSubscriptionDto,
+    { accountId, subscription, gateway }: CreateSubscriptionDto,
   ): Promise<void> {
     try {
       await this.subscriptionsService.createSubscription(
         accountId,
         JSON.stringify(subscription),
         subscription.endpoint,
+        gateway
       );
       console.log(
         `Subscription for account: ${accountId}, endpoint: ${subscription.endpoint} has been saved.`,

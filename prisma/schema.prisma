@@ -16,12 +16,13 @@ model Subscription {
   id                         Int       @id @default(autoincrement())
   account                    String
   endpoint                   String    @unique
+  gateway                    String
   pushSubscriptionObject     Json      @unique @map("push_subscription_object")
   createdAt                  DateTime  @default(now()) @map("created_at") @db.Timestamptz
 }
 
 model Notification {
-  id                         Int       @id @unique
+  id                         Int
   blockHeight                Int       @map("block_height")
   initiatedBy                String    @map("initiated_by")
   itemType                   String?    @map("item_type")
@@ -29,5 +30,8 @@ model Notification {
   path                       String?
   receiver                   String
   valueType                  String    @map("value_type")
+  endpoint                   String
+  gateway                    String
   sentAt                     DateTime  @default(now()) @map("sent_at") @db.Timestamptz
+  @@id([id, endpoint])
 }
