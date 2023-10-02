@@ -27,6 +27,9 @@ export class SubscriptionsController {
     { accountId, subscription, gateway }: CreateSubscriptionDto,
   ): Promise<void> {
     try {
+      console.log(
+        `Subscription create request for account: ${accountId}, endpoint: ${subscription.endpoint}, gateway: ${gateway} has been received.`,
+      );
       await this.subscriptionsService.createSubscription(
         accountId,
         JSON.stringify(subscription),
@@ -50,6 +53,9 @@ export class SubscriptionsController {
   @UsePipes(new JoiValidationPipe(DeleteSubscriptionSchema))
   async delete(@Body() { endpoint }: DeleteSubscriptionDto): Promise<void> {
     try {
+      console.log(
+        `Subscription delete for endpoint: ${endpoint} has been received.`,
+      );
       await this.subscriptionsService.deleteSubscription(endpoint);
     } catch (e: any) {
       console.error(
