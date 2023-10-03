@@ -15,6 +15,9 @@ export class SubscriptionsService {
   ): Promise<void> {
     const subscriptionExists = await this.doesSubsciptionExist(endpoint);
     if (subscriptionExists) {
+      console.error(
+        `Subscription for account: ${account}, endpoint: ${endpoint} already exists.`,
+      );
       throw new VError(
         {
           info: {
@@ -38,13 +41,19 @@ export class SubscriptionsService {
         },
       });
     } catch (e: any) {
-      throw new VError(e, `Failed while creating subscription for account: ${account}`);
+      console.error(
+        `Failed while creating subscription for account: ${account}, endpoint: ${endpoint}.`,
+      );
+      throw new VError(e, `Failed while creating subscription for account: ${account}.`);
     }
   }
 
   async deleteSubscription(endpoint: Subscription['endpoint']): Promise<void> {
     const subscription = await this.getSubscription(endpoint);
     if (!subscription) {
+      console.error(
+        `Subscription for endpoint: ${endpoint} not found.`,
+      );
       throw new VError(
         {
           info: {
@@ -67,6 +76,9 @@ export class SubscriptionsService {
         },
       });
     } catch (e: any) {
+      console.error(
+        `Failed while deleting subscription for account: ${subscription.account}, endpoint: ${endpoint}.`,
+      );
       throw new VError(e, `Failed while deleting subscription ${subscription.account}.`);
     }
   }
@@ -78,6 +90,9 @@ export class SubscriptionsService {
       const subscription = await this.getSubscription(endpoint);
       return subscription !== null;
     } catch (e: any) {
+      console.error(
+        `Failed while executing subscription exists query for endpoint: ${endpoint}.`,
+      );
       throw new VError(e, 'Failed while executing subscription exists query.');
     }
   }
@@ -93,6 +108,9 @@ export class SubscriptionsService {
       });
       return subscription;
     } catch (e: any) {
+      console.error(
+        `Failed while executing get subscription query for endpoint: ${endpoint}.`,
+      );
       throw new VError(e, 'Failed while executing get subscription query.');
     }
   }
