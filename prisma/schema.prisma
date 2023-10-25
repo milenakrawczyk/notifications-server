@@ -15,6 +15,7 @@ generator client {
 model Subscription {
   id                         Int       @id @default(autoincrement())
   account                    String
+  hashId                     String    @map("hash_id")
   endpoint                   String    @unique
   gateway                    String
   pushSubscriptionObject     Json      @unique @map("push_subscription_object")

@@ -2,6 +2,7 @@ import { Subscription } from '../../generated/prisma';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
+import { createAccountHash } from './utils';
 
 @Injectable()
 export class SubscriptionsService {
@@ -29,12 +30,14 @@ export class SubscriptionsService {
       );
     }
     try {
+      const hashId = createAccountHash(account);
       await this.prisma.subscription.create({
         data: {
           account,
           pushSubscriptionObject,
           endpoint,
-          gateway
+          gateway,
+          hashId
         },
         select: {
           id: true,
