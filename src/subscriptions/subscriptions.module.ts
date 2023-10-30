@@ -7,6 +7,6 @@ import { SubscriptionsService } from './subscriptions.service';
   providers: [PrismaService, SubscriptionsService],
   controllers: [SubscriptionsController],
   imports: [PrismaService],
-  exports: [],
+  exports: [SubscriptionsService],
 })
 export class SubscriptionsModule {}

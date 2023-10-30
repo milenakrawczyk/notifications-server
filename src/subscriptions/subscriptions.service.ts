@@ -34,7 +34,7 @@ export class SubscriptionsService {
           account,
           pushSubscriptionObject,
           endpoint,
-          gateway
+          gateway,
         },
         select: {
           id: true,
@@ -44,16 +44,17 @@ export class SubscriptionsService {
       console.error(
         `Failed while creating subscription for account: ${account}, endpoint: ${endpoint}.`,
       );
-      throw new VError(e, `Failed while creating subscription for account: ${account}.`);
+      throw new VError(
+        e,
+        `Failed while creating subscription for account: ${account}.`,
+      );
     }
   }
 
   async deleteSubscription(endpoint: Subscription['endpoint']): Promise<void> {
     const subscription = await this.getSubscription(endpoint);
     if (!subscription) {
-      console.error(
-        `Subscription for endpoint: ${endpoint} not found.`,
-      );
+      console.error(`Subscription for endpoint: ${endpoint} not found.`);
       throw new VError(
         {
           info: {
@@ -79,11 +80,14 @@ export class SubscriptionsService {
       console.error(
         `Failed while deleting subscription for account: ${subscription.account}, endpoint: ${endpoint}.`,
       );
-      throw new VError(e, `Failed while deleting subscription ${subscription.account}.`);
+      throw new VError(
+        e,
+        `Failed while deleting subscription ${subscription.account}.`,
+      );
     }
   }
 
-  private async doesSubsciptionExist(
+  async doesSubsciptionExist(
     endpoint: Subscription['endpoint'],
   ): Promise<boolean> {
     try {
@@ -97,7 +101,7 @@ export class SubscriptionsService {
     }
   }
 
-  private async getSubscription(
+  async getSubscription(
     endpoint: Subscription['endpoint'],
   ): Promise<Subscription> {
     try {
