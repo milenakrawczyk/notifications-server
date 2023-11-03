@@ -26,7 +26,7 @@ export interface CreateSubscriptionDto {
 export const CreateSubscriptionSchema = Joi.object({
   accountId: Joi.string().min(2).max(64).required(),
   subscription: PushSubscriptionObjectSchema,
-  gateway:  Joi.string().uri().required()
+  gateway: Joi.string().uri().required(),
 });
 
 // delete subscription

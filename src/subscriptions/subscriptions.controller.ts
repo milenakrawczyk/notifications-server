@@ -34,7 +34,7 @@ export class SubscriptionsController {
         accountId,
         JSON.stringify(subscription),
         subscription.endpoint,
-        gateway
+        gateway,
       );
       console.log(
         `Subscription for account: ${accountId}, endpoint: ${subscription.endpoint} has been saved.`,
